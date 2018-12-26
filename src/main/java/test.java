@@ -1,3 +1,4 @@
+
 import javax.xml.soap.*;
 import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamResult;
@@ -5,16 +6,18 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class test {
 
     public static void main(String[] args) throws SOAPException, IOException, TransformerConfigurationException {
 
         soapResponder("Tuncay", "Alp");
+
     }
+
 
     public static void soapResponder(String param1, String param2) throws SOAPException, IOException {
 
@@ -38,14 +41,30 @@ public class test {
         URL endpoint = new URL("http://soapclient.com/xml/soapresponder.wsdl");
         SOAPMessage response = connection.call(request, endpoint);
 
-        System.out.println();
-        System.out.println();
-        System.out.println("---------------------------------------------");
-        System.out.println("---------------------------------------------");
-        System.out.println();
-        System.out.println();
+        seperator();
 
         System.out.println(getSOAPMessageAsString(response));
+
+        seperator();
+
+        String strResponse = getSOAPMessageAsString(response);
+        String expected = "Your input parameters are Tuncay and Alp";
+        String matched = "";
+
+        Pattern p = Pattern.compile("(?<=<bstrReturn xsi:type=\"xsd:string\">)(.*)(?=<\\/bstrReturn>)");
+        Matcher m = p.matcher(strResponse);
+
+        if (m.find()){
+            matched = m.group();
+        }
+
+
+        if (expected.equalsIgnoreCase(matched))
+            System.out.println("SUCCESS");
+        else
+            System.out.println("FAIL");
+
+
 
     }
 
@@ -73,6 +92,15 @@ public class test {
             return null;
         }
 
+    }
+
+    public static void seperator(){
+        System.out.println();
+        System.out.println();
+        System.out.println("---------------------------------------------");
+        System.out.println("---------------------------------------------");
+        System.out.println();
+        System.out.println();
     }
 
 }
